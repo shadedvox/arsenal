@@ -40,7 +40,7 @@ This is the basic connection of my USB Type-C 2.0 connector with my MCU. It has 
 Now addressing the issue of conflicting VBUS and 5V from the battery. I came up with a simple circuit involving a P-MOSFET, though I'm quite skeptical about how well this works. I started out with simple diode ORing, but I ran into a distinctive issue: when both inputs are connected, whichever side has the higher voltage wins and passes through. Neither of these lines is exactly 5V. VBUS especially is very fluctuating, and my buck output also wouldn't be exactly 5V, I estimate it to be anywhere between 4.8 and 4.9V. So it's possible that VBUS sometimes overpowers the 5V rail and pushes through. Since my goal is to always prioritize the buck output, I chose a PMOS circuit that always prioritizes the buck output over VBUS.
 ![Image 2](j_imgs/D4-2.png)
 
-# 2026-06-21: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG4 - USB CIRCUITRY - 2
+# 2026-06-21: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG5 - USB CIRCUITRY - 2
 
 **Total time spent: 4 hours**
 The first issue I addressed was that my symbol for the USB connector, which I had obtained from KiCad itself, was wrong. It was missing the double D+ and D- pins and only had a single CC pin. My guess is it was made to work in only a single orientation, which goes against the USB-C design. So I fixed that with my own symbol for a specific USB-C jack, the USB4110-GF-A.
@@ -52,3 +52,17 @@ The main time consumer here was the 5V/VBUS conflict. My last circuit would not 
 ![Image 4](j_imgs/D5-4.png)
 I've also finalized my encoder choice for the drives to be installed. I've settled on the MT6835, a 21-bit magnetic encoder. My earlier choice was the AS5048A, a 14-bit encoder, but I could not find any marketplace where that was available in India. My latest choice is not only available on Robu, it's also higher resolution.
 ![Image 5](j_imgs/D5-5.png)
+
+# 2026-06-22: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG6 - POWER CIRCUITRY - 2
+
+**Total time spent: 3 hours**
+
+![Image 1](j_imgs/D6-1.png)
+The main time consumer this time around was the problem of noise. I had done a pretty decent job of isolating noise earlier, but there were some key blind spots. My PCB, as of now, is meant to be stacked as SIG-GND-POW-SIG, and the ground plane is supposed to be a simple copper pour. This works better since the inner layers use the lighter 0.5oz copper, and having an entire copper plane helps with current distribution and gives very low resistance. This does mean the motors and the logic share the same ground, so noise from the motors travels into the ground plane.
+![Image 2](j_imgs/D6-2.png)
+I attached some bulk capacitors to the 24V rail to filter out as much of that noise as possible, along with bulk decoupling capacitors near the motor drivers. There is also a ferrite bead connecting the connector to the main ground plane. For now, although it isn't perfect, I'd say it's adequate. I will of course be changing some things as I route.
+![Image 3](j_imgs/D6-3.png)
+This 5V/VBUS conflict circuit has now also been added to the power rail itself.
+![Image 4](j_imgs/D6-4.png)
+I've also added LEDs like this to indicate the activity of several power lines: red for 24V, yellow for both VBUS and 5V (two LEDs indicating the same nominal power level of ~5V), and yellow-green for 3.3V.
+I will now be working on the Motor Drivers.
