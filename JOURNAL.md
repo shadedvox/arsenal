@@ -97,7 +97,7 @@ PS: I've been using global labels to keep the overall circuit neat and easy to r
 
 **Total time spent: 6 hours**
 
-# 2026-06-23: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG8 - MAGNETIC ENCODERS
+# 2026-06-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG8 - MAGNETIC ENCODERS
 
 I am using [MT6835](https://robu.in/product/mt6835-magnetic-encoder-module-pwm-spi/) magnetic encoders for the arm.
 ![Image 1](j_imgs/D8-1.png)
