@@ -1,16 +1,21 @@
+---
+title: "ARSENAL — 6-DOF Modular Robotic Arm"
+author: "Atharva Chauham"
+description: "A 6 DOF arm featuring a custom control-board, running on Inverse Kinematics"
+created_at: "2026-05-29"
+---
+
 # 2026-05-29: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG1 - RESEARCH
 
-**Total time spent: 6 hours 30 minutes**
-
-This is my first journal entry on Forge. I'm fairly new to dev board designing for STM32, so I needed to get familiar with the MCU itself. It turned out to be quite complicated, but I found resources that made it simpler. First I needed to figure out how my dev board is going to work, basically what goes where and how it all connects.
+This is my first journal entry for this project. I'm fairly new to dev board designing for STM32, so I needed to get familiar with the MCU itself. It turned out to be quite complicated, but I found resources that made it simpler. First I needed to figure out how my dev board is going to work, basically what goes where and how it all connects.
 ![Image 1](j_imgs/D1-1.png)
 My board needs an MCU of course, along with all the components needed to support it, then four NEMA 17 motors and their drivers. These four motors will be of different torque ratings: the elbow needs to be the highest rated NEMA 17, while the yaw needs to be the lowest, though this will ultimately be based on availability. Along with these, for the base and shoulder I need two NEMA 23 motors and their TMC5160 drivers. All the motors will have magnetic encoders on them so I can track their rotation accurately. So my board will have two UART connections for the four TMC2209 drivers (NEMA 17), with one UART split for two drivers, and one SPI connection for the two TMC5160 drivers (NEMA 23). The six encoders will also share one SPI connection, and the third SPI will be left open, I might add a display later, though it isn't needed at this stage. I've also been thinking about adding an ESP32 chip, mainly for the combined Wi-Fi, Bluetooth, and especially ESP-NOW, since I could potentially make a controller using joysticks, a screen, and an ESP32 to control the arm myself. I'm still figuring some stuff out for this, since I could make a separate ESP board entirely for wireless connections and hook that up over UART to the Raspberry Pi. I'll figure this out soon. After this research phase, four hours which I forgot to log at the time, I started watching a video on STM32 design by Phil's Lab, which was genuinely helpful. After the schematics part was done, I started reading the application notes for power and USB, and the F446RE datasheet.
 The research is hopefully done for now, onto making the schematics.
 This reading was recorded via timelapse here: https://lapse.hackclub.com/timelapse/VTKueXd4oU-n
 
-# 2026-06-07: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG2 - BASE SCHEMATICS
+**Total time spent: 6 hours**
 
-**Total time spent: 5 hours**
+# 2026-06-07: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG2 - BASE SCHEMATICS
 
 After the last journal entry I took a break for a bit, but I'm back on it now. I started working on the main schematics of the board, starting with the MCU. I connected up the MCU power grid, including the decoupling capacitors, then the clock circuit, all configured using STM32CubeMX, which is a genuinely useful tool.
 ![Image 1](j_imgs/D2-1.png)
@@ -19,9 +24,9 @@ This took a lot of time since I was simultaneously looking up niche or specific 
 Next I'll be working on attaching a USB-C header, then creating the main 24V to 3.3V power circuit, since I plan on using external 24V power that I'll step down using an onboard buck converter. After that I'll work on the connection protocols, the UARTs and SPIs for the drivers. I'll also probably add jumper headers to most of the unconnected GPIOs so I can expand the board's capabilities later on.
 ![Image 3](j_imgs/D2-3.png)
 
-# 2026-06-13: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG3 - POWER CIRCUITRY - 1
+**Total time spent: 5 hours**
 
-**Total time spent: 10 hours**
+# 2026-06-13: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG3 - POWER CIRCUITRY - 1
 
 For power, I'm using a 24V input from an external source (wall power adapter) through the XT60 power connector. To run my MCU I had to step this down to 3.3V, or else everything goes up in smoke. For this I made my buck converter onboard, and the circuitry ended up being a lot more difficult than expected.
 ![Image 1](j_imgs/D3-1.png)
@@ -32,17 +37,19 @@ The biggest headache of this entire part was the compensation network, because t
 ![Image 3](j_imgs/D3-3.png)
 Now I have another problem. I have to wire up the USB-C 2.0 connector, and the issue is that since I have external power, I can't accept VBUS directly. What I also want is for the MCU to stay on when only USB is connected but the battery isn't. So the intended behavior is: battery only, whole system on (motors, drivers, MCU); battery plus USB, whole system on but powered by the battery, with USB used only for programming; USB only, only the MCU on for programming. My plan is to use a mux to monitor both inputs, with VBUS going through an LDO to 3.3V, and main power also at 3.3V. I'll be working on this next.
 
+**Total time spent: 10 hours**
+
 # 2026-06-20: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG4 - USB CIRCUITRY - 1
 
-**Total time spent: 2 hours**
 This is the basic connection of my USB Type-C 2.0 connector with my MCU. It has an ESD protection IC connected to the D+ and D- lines of the connector, since these are high speed USB 2.0 data lines and any ESD event would simply destroy the data.
 ![Image 1](j_imgs/D4-1.png)
 Now addressing the issue of conflicting VBUS and 5V from the battery. I came up with a simple circuit involving a P-MOSFET, though I'm quite skeptical about how well this works. I started out with simple diode ORing, but I ran into a distinctive issue: when both inputs are connected, whichever side has the higher voltage wins and passes through. Neither of these lines is exactly 5V. VBUS especially is very fluctuating, and my buck output also wouldn't be exactly 5V, I estimate it to be anywhere between 4.8 and 4.9V. So it's possible that VBUS sometimes overpowers the 5V rail and pushes through. Since my goal is to always prioritize the buck output, I chose a PMOS circuit that always prioritizes the buck output over VBUS.
 ![Image 2](j_imgs/D4-2.png)
 
+**Total time spent: 2 hours**
+
 # 2026-06-21: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG5 - USB CIRCUITRY - 2
 
-**Total time spent: 4 hours**
 The first issue I addressed was that my symbol for the USB connector, which I had obtained from KiCad itself, was wrong. It was missing the double D+ and D- pins and only had a single CC pin. My guess is it was made to work in only a single orientation, which goes against the USB-C design. So I fixed that with my own symbol for a specific USB-C jack, the USB4110-GF-A.
 ![Image 1](j_imgs/D5-1.png)
 ![Image 2](j_imgs/D5-2.png)
@@ -53,16 +60,40 @@ The main time consumer here was the 5V/VBUS conflict. My last circuit would not 
 I've also finalized my encoder choice for the drives to be installed. I've settled on the MT6835, a 21-bit magnetic encoder. My earlier choice was the AS5048A, a 14-bit encoder, but I could not find any marketplace where that was available in India. My latest choice is not only available on Robu, it's also higher resolution.
 ![Image 5](j_imgs/D5-5.png)
 
-# 2026-06-22: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG6 - POWER CIRCUITRY - 2
+**Total time spent: 4 hours**
 
-**Total time spent: 3 hours**
+# 2026-06-22: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG6 - POWER CIRCUITRY - 2
 
 ![Image 1](j_imgs/D6-1.png)
 The main time consumer this time around was the problem of noise. I had done a pretty decent job of isolating noise earlier, but there were some key blind spots. My PCB, as of now, is meant to be stacked as SIG-GND-POW-SIG, and the ground plane is supposed to be a simple copper pour. This works better since the inner layers use the lighter 0.5oz copper, and having an entire copper plane helps with current distribution and gives very low resistance. This does mean the motors and the logic share the same ground, so noise from the motors travels into the ground plane.
 ![Image 2](j_imgs/D6-2.png)
-I attached some bulk capacitors to the 24V rail to filter out as much of that noise as possible, along with bulk decoupling capacitors near the motor drivers. There is also a ferrite bead connecting the connector to the main ground plane. For now, although it isn't perfect, I'd say it's adequate. I will of course be changing some things as I route.
+I attached 5 decoupling capacitors to the 24V rail to filter out as much of that noise as possible, covering the maximum range of frequency I could, along with bulk decoupling capacitors near the motor drivers. There is also a ferrite bead connecting the connector to the main ground plane. For now, although it isn't perfect, I'd say it's adequate. I will of course be changing some things as I route.
 ![Image 3](j_imgs/D6-3.png)
 This 5V/VBUS conflict circuit has now also been added to the power rail itself.
 ![Image 4](j_imgs/D6-4.png)
 I've also added LEDs like this to indicate the activity of several power lines: red for 24V, yellow for both VBUS and 5V (two LEDs indicating the same nominal power level of ~5V), and yellow-green for 3.3V.
 I will now be working on the Motor Drivers.
+
+**Total time spent: 3 hours**
+
+# 2026-06-23: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG7 - MOTOR DRIVERS
+
+I will be using 6 motors: 3 NEMA 17s and 3 NEMA 23s. The reasoning behind this distribution is that the NEMA 23s are placed at the base, shoulder, and elbow. The arm has six degrees of freedom, starting from the bottom: base, shoulder, elbow, roll, pitch, yaw. The base, shoulder, and elbow are the joints requiring the most load-bearing capacity, with the shoulder under the most load overall. To control these motors, I'm using [TMC2209](https://global.bttwiki.com/TMC2209.html) drivers for the NEMA 17s and [TMC5160](https://global.bttwiki.com/TMC5160T%20Pro%20V1.0.html) drivers for the NEMA 23s. Since we're only controlling NEMA motors, we could technically use either driver for either motor, but the TMC2209 is widely considered the best purpose-built driver for NEMA 17s, with the TMC5160 being overkill for that role. Similarly, for the NEMA 23s, the TMC5160 is generally considered the better overall pick.
+So that's 3 TMC2209s and 3 TMC5160s.
+![Image 1](j_imgs/D7-1.png)
+![Image 2](j_imgs/D7-2.png)
+These are the symbols I've used for these drivers. Since they're off-the-shelf modules, the footprint is basically just holes for female 2.54mm pitch pin headers.
+![Image 3](j_imgs/D7-3.png)
+A bit on how these drivers function: the TMC2209 uses UART to communicate with the MCU. Since the motor driver is primarily meant to receive commands, I'm using the single-wire (half-duplex) UART mode, connecting only the line needed to transmit commands. An interesting feature of these drivers is that up to four of them can share a single UART line. The MS1 and MS2 pins act as address pins, and setting them high or low in different combinations assigns each driver a UART address. The address is set as a two-bit value, with MS2 as the high bit and MS1 as the low bit.
+If both pins are grounded, both bits are 0, giving address 00.
+If MS1 is tied to VCC and MS2 is grounded, MS1 reads 1 and MS2 reads 0, giving address 01.
+The remaining two combinations give addresses 10 and 11, allowing up to four drivers on a single UART line. Since I'm only using 3 drivers, a single half-duplex UART line is sufficient. A couple of other things worth mentioning: the DIAG pin, common to both driver types, is a diagnostics pin that signals the MCU if something is wrong. This needs to be wired to a GPIO if it's going to be used, and due to a tight pin budget, I'm only connecting the DIAG pin on the TMC5160 drivers, the ones for the base, shoulder, and elbow, since these are the joints carrying the most load. The other main shared pins are EN, STEP, and DIR.
+EN is the enable pin, essentially the on/off switch for the driver. STEP is the pulse input, where a single pulse moves the motor one step forward. DIR is the direction pin, and setting it HIGH or LOW determines whether the motor spins clockwise or counterclockwise.
+The TMC5160 uses SPI, with four pins for communication that give access to the drivers' smart features and allow software control. These four pins are MOSI, MISO, CSN, and SCK. Connecting the motors to the drivers is its own task, since the motors have four-wire, non-center-tapped inputs corresponding to the two internal coils. I've added JST-VH connectors directly on the main board so the motors can plug straight in.
+I've also added decoupling capacitors on the VMOT line, the driver's 24V input, along with 33 ohm resistors on the STEP and DIR lines of each driver and on the CSN line of the TMC5160s, just to limit current. The DIAG pins on the TMC5160s require an external pull-up, which has also been added.
+![Image 4](j_imgs/D7-4.png)
+This is the finished motor driver circuit. Next I'll be wiring up the encoders.
+PS: I've been using global labels to keep the overall circuit neat and easy to read.
+
+**Total time spent: 6 hours**
+
