@@ -1,6 +1,6 @@
-Configuration	Documents
+Configuration	voxboard
 STM32CubeMX 	6.17.0
-Date	07/26/2026
+Date	07/27/2026
 MCU	STM32F446RETx
 
 
@@ -185,7 +185,7 @@ Pin Nb	PINs	FUNCTIONs	LABELs
 SOFTWARE PROJECT
 
 Project Settings : 
-Project Name : Documents
+Project Name : voxboard
 Project Folder : C:\Users\athar\Files\arsenal\Stage1 - STM\CubeMX
 Toolchain / IDE : EWARM V8.50
 Firmware Package Name and Version : STM32Cube FW_F4 V1.28.3

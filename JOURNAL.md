@@ -9,15 +9,15 @@ created_at: "2026-05-29"
 
 This is my first journal entry for this project. I'm fairly new to dev board designing for STM32, so I needed to get familiar with the MCU itself. It turned out to be quite complicated, but I found resources that made it simpler. First I needed to figure out how my dev board is going to work, basically what goes where and how it all connects.
 ![Image 1](j_imgs/D1-1.png)
-My board needs an MCU of course, along with all the components needed to support it, then four NEMA 17 motors and their drivers. These four motors will be of different torque ratings: the elbow needs to be the highest rated NEMA 17, while the yaw needs to be the lowest, though this will ultimately be based on availability. Along with these, for the base and shoulder I need two NEMA 23 motors and their TMC5160 drivers. All the motors will have magnetic encoders on them so I can track their rotation accurately. So my board will have two UART connections for the four TMC2209 drivers (NEMA 17), with one UART split for two drivers, and one SPI connection for the two TMC5160 drivers (NEMA 23). The six encoders will also share one SPI connection, and the third SPI will be left open, I might add a display later, though it isn't needed at this stage. I've also been thinking about adding an ESP32 chip, mainly for the combined Wi-Fi, Bluetooth, and especially ESP-NOW, since I could potentially make a controller using joysticks, a screen, and an ESP32 to control the arm myself. I'm still figuring some stuff out for this, since I could make a separate ESP board entirely for wireless connections and hook that up over UART to the Raspberry Pi. I'll figure this out soon. After this research phase, four hours which I forgot to log at the time, I started watching a video on STM32 design by Phil's Lab, which was genuinely helpful. After the schematics part was done, I started reading the application notes for power and USB, and the F446RE datasheet.
+My board needs an MCU of course, along with all the components needed to support it, then four NEMA 17 motors and their drivers. These four motors will be of different torque ratings: the elbow needs to be the highest rated NEMA 17, while the yaw needs to be the lowest, though this will ultimately be based on availability. Along with these, for the base and shoulder I need two NEMA 23 motors and their TMC5160 drivers. All the motors will have magnetic encoders on them so I can track their rotation accurately. So my board will have two UART connections for the four TMC2209 drivers (NEMA 17), with one UART split for two drivers, and one SPI connection for the two TMC5160 drivers (NEMA 23). The six encoders will also share one SPI connection, and the third SPI will be left open, I might add a display later, though it isn't needed at this stage. I've also been thinking about adding an ESP32 chip, mainly for the combined Wi-Fi, Bluetooth, and especially ESP-NOW, since I could potentially make a controller using joysticks, a screen, and an ESP32 to control the arm myself. I'm still figuring some stuff out for this, since I could make a separate ESP board entirely for wireless connections and hook that up over UART to the Raspberry Pi. I'll figure this out soon. After this research phase, four hours which I forgot to log at the time, I started watching a video on STM32 design by Phil's Lab, which wasq quite helpful. After the schematics part was done, I started reading the application notes for power and USB, and the F446RE datasheet.
 The research is hopefully done for now, onto making the schematics.
 This reading was recorded via timelapse here: https://lapse.hackclub.com/timelapse/VTKueXd4oU-n
 
 **Total time spent: 6 hours**
 
-# 2026-06-07: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG2 - BASE SCHEMATICS
+# 2026-06-12: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG2 - BASE SCHEMATICS
 
-After the last journal entry I took a break for a bit, but I'm back on it now. I started working on the main schematics of the board, starting with the MCU. I connected up the MCU power grid, including the decoupling capacitors, then the clock circuit, all configured using STM32CubeMX, which is a genuinely useful tool.
+I started working on the main schematics of the board, starting with the MCU. I connected up the MCU power grid, including the decoupling capacitors, then the clock circuit, all configured using STM32CubeMX.
 ![Image 1](j_imgs/D2-1.png)
 This took a lot of time since I was simultaneously looking up niche or specific parts on the JLCPCB parts picker. For example, finding my crystal resonator took a while since JLCPCB now refers to crystal resonators simply as "crystals." My clock configuration on the STM32 chip also wasn't auto calculating correctly, and my HCLK, the chip's clock speed, was capped at 16MHz when it can go up to 180MHz. This took a while to figure out since that part is supposed to be automatic, which made it hard to find solutions. After a few tweaks to the configuration, 180MHz was verified using an 8MHz resonator.
 ![Image 2](j_imgs/D2-2.png)
@@ -74,7 +74,7 @@ This 5V/VBUS conflict circuit has now also been added to the power rail itself.
 I've also added LEDs like this to indicate the activity of several power lines: red for 24V, yellow for both VBUS and 5V (two LEDs indicating the same nominal power level of ~5V), and yellow-green for 3.3V.
 I will now be working on the Motor Drivers.
 
-**Total time spent: 3 hours**
+**Total time spent: 2 hours**
 
 # 2026-06-23: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG7 - MOTOR DRIVERS
 
@@ -102,11 +102,59 @@ PS: I've been using global labels to keep the overall circuit neat and easy to r
 I am using [MT6835](https://robu.in/product/mt6835-magnetic-encoder-module-pwm-spi/) magnetic encoders for the arm.
 ![Image 1](j_imgs/D8-1.png)
 Magnetic encoders are essentially smart direction detectors: all they do is measure the change in direction of a magnetic field. A diametric magnet, meaning a magnet with opposite poles across a diameter, is placed coplanar above the chip, leaving just a tiny gap of about 1mm.
-![Image 2](j_imgs/D8-2.png)
+![Image 1](j_imgs/D8-1.png)
 The chip detects changes in the direction of the magnetic field produced by the magnet above it. The higher the resolution, the smaller the change in angle it can detect. A 21-bit encoder like this gives an angular precision of about 0.0001717 degrees.
 ![Image 3](j_imgs/D8-3.png)
 The MT6835 uses normal 4 pin SPI to communicate with the board. It has a CAL_EN pin, the calibration enable pin, which triggers auto-calibration mode when pulled high. Since I'm using SPI, I can trigger calibration through software instead, so grounding this pin is the right choice. All six encoders, one for each joint, are connected to the same SPI bus.
 ![Image 4](j_imgs/D8-4.png)
 The encoders will be placed in front of the gearboxes I'll be using on the NEMA motors, since the gearbox output will be the actual driving force being measured.
+
+**Total time spent: 1 hour**
+
+# 2026-06-25: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG9 - CAN BUS
+
+I've decided to add a CAN bus to the board, mainly for expansion purposes. For example, I could connect the end-effector, a gripper or claw, to any simple MCU and wire that system up to this CAN bus. I had also been considering whether I'd ever need to add a camera to automate the arm, but if that happens, I'd wire the camera directly to the Raspberry Pi instead, since CAN buses are far too slow for video data.
+![Image 1](j_imgs/D9-1.png)
+![Image 2](j_imgs/D9-2.png)
+For this, I'm using an SN65HVD230DR CAN transceiver IC, and I'm essentially replicating the circuit shown above. I'll be adding multiple headers and the end-termination network directly on this board so I don't have to worry about that later. I've also been adding ESD protection to all my components, but most of them are closer to the MCU, so I'll cover that in a later journal. Here, I've added an ESD chip near the connectors, since that's where any surge should be stopped. It took a while and several iterations to figure out the end-termination placement, but this is the finished circuit.
+![Image 3](j_imgs/D9-3.png)
+Also, on this board I'm not using standard pin headers, except for the Raspberry Pi UART connection. I need secure, reliable connectors, so I've been using JST connectors. For these headers I've used JST-GH connectors.
+
+**Total time spent: 3 hours**
+
+# 2026-06-26: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG10 - I2C BUS
+
+This is a short one. I've added some I2C connectors just to add support for any sensors I might add in the future, since it doesn't cost much. Many sensors on the market run on I2C, so having a few connectors for that just makes my board a bit more flexible.
+![Image 1](j_imgs/D10-1.png)
+Again, I've used JST-GH connectors, with an SM12OC ESD chip placed near them. The pinout for these connectors is VCC-GND-SDA-SCL. Most of my time in these devlogs is spent finding the right components on JLCPCB. Like with the power circuitry, I just couldn't find the right parts: some capacitors had bad derating, some inductors weren't good enough. Another big time consumer is reading through datasheets only to find out the part doesn't actually fit my needs. But with this done, I'm approaching the final stages of the schematics.
+
+**Total time spent: 30 minutes**
+
+# 2026-06-26: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG11 - MCU ESSENTIALS
+
+This devlog covers components and connections essential to the MCU.
+![Image 1](j_imgs/D11-1.png)
+These are the decoupling rails for 3.3V and 3.3V analog (VDDA). This follows ST's documentation: one 100nF capacitor per VDD/VBAT pin, plus one bulk decoupling capacitor. The same applies to VDDA, but with an additional bulk capacitor for extra filtering and a ferrite bead connecting the two 3V3 lines.
+![Image 2](j_imgs/D11-2.png)
+These are the schematics for the NRST and BOOT button. The BOOT button is a slider switch, and NRST is a push button. NRST already has an internal pull-up, so no external one is required.
+![Image 3](j_imgs/D11-3.png)
+These are the MCU's ESD/UART connections. An ESD chip is placed near the MCU for the UART line going to the drivers, and another ESD chip is placed near the three-pin header for the UART connection to the Raspberry Pi.
+![Image 4](j_imgs/D11-4.png)
+These are the connections for the near-MCU ESD chip covering the encoders' and motor drivers' SPI lines.
+![Image 5](j_imgs/D11-5.png)
+These are the serial wire debug and heartbeat LED connections. For serial wire debug I'll be using an ST-Link, so there are five pins for that.
+![Image 6](j_imgs/D11-6.png)
+This is the crystal resonator, also mentioned in devlog 2. I've just used global labels here to keep it neater.
+
+**Total time spent: 1 hour 30 minutes**
+
+# 2026-06-27: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG12 - MCU SETUP
+
+![Image 1](j_imgs/D12-1.png)
+I've finished wiring up the MCU as well, with all the labels established and connected, and I did some cleaning up and arranging the components, overall making the schematics neat. A couple of series resistors are used on lines where current limiting is required. VCAP has a 4.7µF capacitor tied to it, as per ST's guidance. I've transferred this schematic layout from STM32CubeMX.
+![Image 2](j_imgs/D12-2.png)
+This is the STM32CubeMX pin layout. The CubeMX report is available in [\Stage1 - STM\CubeMX](https://github.com/atharvach2007/arsenal/blob/main/Stage1%20-%20STM/CubeMX), along with the IOC file in the same folder. All of the schematics are available in [\Stage1 - STM\voxboard](https://github.com/atharvach2007/arsenal/tree/main/Stage1%20-%20STM/voxboard).
+With this, I've completed the schematics for the 6-DOF ARSENAL arm. Next, I'll move on to routing the PCB.
+<img src="Stage1 - STM\voxboard\voxboard.svg" alt="Entire Schematic" width="600">
 
 **Total time spent: 1 hour**
