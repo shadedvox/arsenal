@@ -30,14 +30,14 @@ Next I'll be working on attaching a USB-C header, then creating the main 24V to 
 
 For power, I'm using a 24V input from an external source (wall power adapter) through the XT60 power connector. To run my MCU I had to step this down to 3.3V, or else everything goes up in smoke. For this I made my buck converter onboard, and the circuitry ended up being a lot more difficult than expected.
 ![Image 1](j_imgs/D3-1.png)
-This is the general application circuit provided in the datasheet of the IC I'm using (TPS54331), and on the surface it looked like exactly what I needed, but it wasn't quite that simple.
+This is the general application circuit provided in the datasheet of the IC I'm using (TPS54331), and it looks like exactly what I need, but it wasn't quite that simple.
 This is a direct 7-28V to 3.3V converter. I could have gone with this, but it usually produces a noisy output, which isn't ideal for a stable operating MCU. So the plan is a 24V to 5V buck stage, then a 5V to 3.3V LDO. The LDO provides the stabilization needed at the output and reduces noise drastically. The issue was I had to wire the buck stage for 24V to 5V. Not a lot changes here, only the compensation network, the voltage divider resistors, and the main inductor, all derivable from formulas in the datasheet.  Sounds straightforward, and it would've been, if not for the 'incomplete' datasheet.
 ![Image 2](j_imgs/D3-2.png)
 The biggest headache of this entire part was the compensation network, because the datasheet has no reference as to what alpha is, not written anywhere. After assuming alpha to be the gain, which turned out to be true, I found that the datasheet's own calculations for its network did not match up. It gets better: ceramic capacitors experience something called derating, where at higher temperatures and/or voltages their capacitance dips. At 5V, a lot of 10V capacitors become around 30 to 40 percent of their initial value, so a 100uF 10V ceramic becomes a 30 to 40uF capacitor, more than half the capacity lost. This was crucial for my output capacitors since they'd be the ones under load, so I had to go through the entire JLCPCB parts library for capacitors that don't derate as badly at 5V. In the end I settled on a 16V ceramic I found with manageable derating. Many datasheets also don't include the derating curve itself, which is what you need to figure out how much derating occurs at a given voltage. I switched to electrolytic capacitors midway, then needed their ESR, which again was missing from the datasheets. This was by far the most frustrating part of the project so far.
 ![Image 3](j_imgs/D3-3.png)
 Now I have another problem. I have to wire up the USB-C 2.0 connector, and the issue is that since I have external power, I can't accept VBUS directly. What I also want is for the MCU to stay on when only USB is connected but the battery isn't. So the intended behavior is: battery only, whole system on (motors, drivers, MCU); battery plus USB, whole system on but powered by the battery, with USB used only for programming; USB only, only the MCU on for programming. My plan is to use a mux to monitor both inputs, with VBUS going through an LDO to 3.3V, and main power also at 3.3V. I'll be working on this next.
 
-**Total time spent: 10 hours**
+**Total time spent: 7 hours**
 
 # 2026-06-20: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG4 - USB CIRCUITRY - 1
 
@@ -74,7 +74,7 @@ This 5V/VBUS conflict circuit has now also been added to the power rail itself.
 I've also added LEDs like this to indicate the activity of several power lines: red for 24V, yellow for both VBUS and 5V (two LEDs indicating the same nominal power level of ~5V), and yellow-green for 3.3V.
 I will now be working on the Motor Drivers.
 
-**Total time spent: 2 hours**
+**Total time spent: 5 hours**
 
 # 2026-06-23: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG7 - MOTOR DRIVERS
 
@@ -95,7 +95,7 @@ I've also added decoupling capacitors on the VMOT line, the driver's 24V input, 
 This is the finished motor driver circuit. Next I'll be wiring up the encoders.
 PS: I've been using global labels to keep the overall circuit neat and easy to read.
 
-**Total time spent: 6 hours**
+**Total time spent: 7 hours**
 
 # 2026-06-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG8 - MAGNETIC ENCODERS
 
@@ -128,13 +128,13 @@ This is a short one. I've added some I2C connectors just to add support for any 
 ![Image 1](j_imgs/D10-1.png)
 Again, I've used JST-GH connectors, with an SM12OC ESD chip placed near them. The pinout for these connectors is VCC-GND-SDA-SCL. Most of my time in these devlogs is spent finding the right components on JLCPCB. Like with the power circuitry, I just couldn't find the right parts: some capacitors had bad derating, some inductors weren't good enough. Another big time consumer is reading through datasheets only to find out the part doesn't actually fit my needs. But with this done, I'm approaching the final stages of the schematics.
 
-**Total time spent: 30 minutes**
+**Total time spent: 1 hour**
 
 # 2026-06-26: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG11 - MCU ESSENTIALS
 
 This devlog covers components and connections essential to the MCU.
 ![Image 1](j_imgs/D11-1.png)
-These are the decoupling rails for 3.3V and 3.3V analog (VDDA). This follows ST's documentation: one 100nF capacitor per VDD/VBAT pin, plus one bulk decoupling capacitor. The same applies to VDDA, but with an additional bulk capacitor for extra filtering and a ferrite bead connecting the two 3V3 lines.
+These are the decoupling rails for 3.3V and 3.3V analog (VDDA). This follows ST's documentation: one 100nF capacitor per VDD/VBAT pin, plus one bulk decoupling capacitor. The same applies to VDDA, but with an additional bulk capacitor for extra filtering and a ferrite bead connecting the two 3.3V lines.
 ![Image 2](j_imgs/D11-2.png)
 These are the schematics for the NRST and BOOT button. The BOOT button is a slider switch, and NRST is a push button. NRST already has an internal pull-up, so no external one is required.
 ![Image 3](j_imgs/D11-3.png)
@@ -146,7 +146,7 @@ These are the serial wire debug and heartbeat LED connections. For serial wire d
 ![Image 6](j_imgs/D11-6.png)
 This is the crystal resonator, also mentioned in devlog 2. I've just used global labels here to keep it neater.
 
-**Total time spent: 1 hour 30 minutes**
+**Total time spent: 2 hours**
 
 # 2026-06-27: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG12 - MCU SETUP
 
@@ -156,5 +156,93 @@ I've finished wiring up the MCU as well, with all the labels established and con
 This is the STM32CubeMX pin layout. The CubeMX report is available in [\Stage1 - STM\CubeMX](https://github.com/atharvach2007/arsenal/blob/main/Stage1%20-%20STM/CubeMX), along with the IOC file in the same folder. All of the schematics are available in [\Stage1 - STM\voxboard](https://github.com/atharvach2007/arsenal/tree/main/Stage1%20-%20STM/voxboard).
 With this, I've completed the schematics for the 6-DOF ARSENAL arm. Next, I'll move on to routing the PCB.
 <img src="Stage1 - STM\voxboard\voxboard.svg" alt="Entire Schematic" width="600">
+
+**Total time spent: 1 hour**
+
+# 2026-07-20: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG13 - ROUTING #1 SETUP 
+
+With the schematics completed, I moved on to routing. Before getting into it properly, I took a short break to work on some other projects. Once I got back to it, the first step was creating a rough layout, since this board has a large number of connectors and connection types, along with two entirely separate power rails. To manage this, I split the layout into two sections: one containing all the 3.3V components and the other containing all the 24V components. I went through three main layout iterations, with my primary concern throughout being the power circuitry. Since I estimated a maximum current draw of around 13A, I wanted to make sure the routing could comfortably handle that load without issues.
+
+I started by placing the core MCU components: the decoupling capacitors, the crystal oscillator, and the rest of the essential MCU circuitry, including the ESD protection ICs, which I had planned to place close to the MCU, as well as the resistors for the SPI CS lines. From there, I grouped the remaining sections of the board by function, bringing the I2C connectors together, the SPI encoder connectors together, and the CAN bus connectors together along with their supporting circuitry.
+
+![Image 1](j_imgs/D13-1.png)
+![Image 2](j_imgs/D13-2.png)
+![Image 3](j_imgs/D13-3.png)
+
+In layout 3, you'll notice six new electrolytic capacitors. I added these afterward to help suppress stepper motor noise that could otherwise leak into the logic rails, which would cause problems downstream. For now, I'm planning to move forward with this third layout as my base. The power circuitry has also been arranged temporarily at this stage, and I'll continue refining it as the design progresses.
+
+An important note, my board has a 4 layer stackup of SIG - GND - POW (3.3V) - SIG.
+
+![Image 4](j_imgs/D13-4.png)
+
+With the basic layout in place, the next step is routing the MCU and its direct connections first.
+
+**Total time spent: 3 hours**
+
+# 2026-07-21: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG14 - ROUTING #2 SIMPLE LOGIC CONNECTIONS 
+
+After the rough placement, I routed the core MCU components: the power pin decoupling capacitors, the analog 3.3V connections, the crystal oscillator, series resistors on some of the I2C and SPI CS lines, the ESD protection ICs for the SPI lines, and the heartbeat LED. This layout isn't final and will likely change as the design progresses. One thing I'm considering is moving the NRST button, boot button, and heartbeat LED closer to the board boundary, both for easier access and to reduce crowding around the MCU. I'm using vias mainly for the 3.3V and GND connections, and reserving the back copper layer for the motor driver circuitry further out on the board.
+
+![Image 1](j_imgs/D14-1.png)
+
+Next was the USB-C connector, which involved differential pairs and needed a bit more care. I kept the traces as short and straight as possible and placed the ESD chip right over the main differential pair. The remaining connections around it were fairly straightforward.
+
+![Image 2](j_imgs/D14-2.png)
+
+After that came the simpler connector routing for the encoder SPI and I2C ports.
+
+![Image 3](j_imgs/D14-3.png)
+![Image 4](j_imgs/D14-4.png)
+
+The next major piece was the CAN bus, which is mainly there to serve as a connector for the end effector. Routing itself was fairly easy, though the main challenge was fitting everything into a fairly compact area.
+
+![Image 5](j_imgs/D14-5.png)
+
+With the basic routing done, I'll move on to the power lines next.
+
+**Total time spent: 4 hours**
+
+# 2026-07-23: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG15 - ROUTING #3 POWER CONNECTIONS - 1 
+
+My main concern at this stage was figuring out how to carry such high current across the board while keeping the motor current properly isolated from the logic current. I started by laying down thick traces capable of handling the 13A requirement I'd estimated earlier.
+
+![Image 1](j_imgs/D15-1.png)
+![Image 2](j_imgs/D15-2.png)
+
+This does look a bit messy, but I couldn't really come up with a cleaner approach given the constraints. Next, I moved on to wiring up the smaller components for the buck converter and the LDO, trying to keep the whole configuration as compact as possible. This ended up being the most time consuming part of the whole process. I spent hours re-iterating on the layout, shrinking it down bit by bit each time I found a slightly better arrangement.
+
+![Image 3](j_imgs/D15-3.png)
+
+Along the way, I also revised the motor driver layout. I decided to run the entire power rail between the rows of drivers, so that the 24V side stays isolated on one side of the board while the 3.3V connections can travel across to the other side using the third power layer.
+
+![Image 4](j_imgs/D15-4.png)
+
+The bigger challenge after that was figuring out how to extend traces out to the 24V inputs of each driver from the central thick trace. After a fair bit of trial and error, I landed on a spider-like branching structure that seemed to work well. Part of the difficulty here was that this isn't the only set of traces converging near the drivers, so I had to leave enough room to account for the other connections that would eventually need to pass through the same area.
+
+![Image 5](j_imgs/D15-5.png)
+![Image 6](j_imgs/D15-6.png)
+
+With the power routing mostly done for now, I'll probably move on to the remaining connections next, but I might revisit this tomorrow.
+
+**Total time spent: 5 hours**
+
+# 2026-07-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG16 - ROUTING #4 POWER CONNECTIONS - 2 
+
+After sharing this setup with a few friends on Slack and getting laughed at over the spider structure I made, they suggested I switch to using fill zones instead. Since a fill zone would handle the current distribution far more cleanly than a tangle of individually routed traces. So my plan going forward is to build a fill zone shaped like a tree across the top layer, since 1oz copper will be used for the top layer, and leave the third layer reserved for the 3.3V connections.
+![Image 1](j_imgs/D16-1.png)
+With that done, I'm quite satisfied with how it turned out, though I still think there's room to make the overall design more compact. So I will be spending some more time on that front as well, mostly just shifting components around and tightening up the spacing wherever possible. I won't be documenting every small shift here, but I'll include the final result in my closing devlog for this board.
+![Image 2](j_imgs/D16-2.png)
+
+**Total time spent: 1 hour**
+
+# 2026-07-27 to 2026-08-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG17 - ROUTING #5 OVERALL CONNECTIONS - 1
+
+i stopped doing my project consistently after my school started, so I did like very little stuff randomly if I found some time, so i dont have that stuff documented that well as compared to my other journals. So i will combining all of the small bits and will be posting 3-4 very long journals just explaining everything i did.
+
+
+
+![Image 1](j_imgs/D16-1.png)
+With that done, I'm quite satisfied with how it turned out, though I still think there's room to make the overall design more compact. So I will be spending some more time on that front as well, mostly just shifting components around and tightening up the spacing wherever possible. I won't be documenting every small shift here, but I'll include the final result in my closing devlog for this board.
+![Image 2](j_imgs/D16-2.png)
 
 **Total time spent: 1 hour**
