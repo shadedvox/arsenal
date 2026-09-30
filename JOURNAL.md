@@ -246,7 +246,7 @@ With that settled, the main routing left was connecting the MCU to the rest of t
 ![Image 2](j_imgs/D17-2.png)
 Speaking of placement near the MCU, let me elaborate a bit on my ESD protection plan, since it's something I put a fair bit of thought into. Basically, I have two different placement strategies depending on the type of connection. Connectors that go off-board to the outside world, things like USB-C, CAN, RPi UART, and I2C, get their ESD protection placed right at the connector itself. That's because that's exactly where a static discharge or a cable-insertion transient would actually enter the board, and stopping it right there means it never gets the chance to couple onto anything else further downstream. On the other hand, buses that stay entirely internal to the board, like SPI1 going to the encoders, SPI2 going to the TMC5160 drivers, and the TMC2209 UART buses, don't really have an external entry point in the same sense, so their ESD protection sits near the MCU instead, guarding the chip's pins directly on a shared bus trunk that feeds several onboard devices at once.
 ![Image 3](j_imgs/D17-3.png)
-**Total time spent: 7 hour**
+**Total time spent: 7 hours**
 
 # 2026-07-27 to 2026-08-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG18 - ROUTING #6 OVERALL CONNECTIONS - 2
 
@@ -262,7 +262,7 @@ From there, I started routing all the different logic connections to the drivers
 But after wrestling with this for a long time, most of the main routing was finally done. I then moved on to the signal lines, which, after a lot of back and forth and liberal use of vias to hop between layers, were also eventually finished.
 ![Image 4](j_imgs/D18-4.png)
 
-**Total time spent: 7 hour**
+**Total time spent: 7 hours**
 
 # 2026-07-27 to 2026-08-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG19 - ROUTING #6 OVERALL CONNECTIONS - 3
 
@@ -279,7 +279,7 @@ I tried using the "edit via properties" option to fix this in one go, but that d
 ![Image 4](j_imgs/D19-4.png)
 ![Image 5](j_imgs/D19-5.png)
 
-**Total time spent: 7 hour**
+**Total time spent: 7 hours**
 
 # 2026-07-27 to 2026-08-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG20 - ROUTING #7 OVERALL CONNECTIONS - 4
 
@@ -306,4 +306,5 @@ This was the final compressed layout of the power circuitry.
 ![Image 11](j_imgs/D20-11.png)
 ![Image 12](j_imgs/D20-12.png)
 It's beautiful.
-**Total time spent: 7 hour**
+
+**Total time spent: 7 hours**
