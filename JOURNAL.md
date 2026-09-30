@@ -37,7 +37,7 @@ The biggest headache of this entire part was the compensation network, because t
 ![Image 3](j_imgs/D3-3.png)
 Now I have another problem. I have to wire up the USB-C 2.0 connector, and the issue is that since I have external power, I can't accept VBUS directly. What I also want is for the MCU to stay on when only USB is connected but the battery isn't. So the intended behavior is: battery only, whole system on (motors, drivers, MCU); battery plus USB, whole system on but powered by the battery, with USB used only for programming; USB only, only the MCU on for programming. My plan is to use a mux to monitor both inputs, with VBUS going through an LDO to 3.3V, and main power also at 3.3V. I'll be working on this next.
 
-**Total time spent: 7 hours**
+**Total time spent: 10 hours**
 
 # 2026-06-20: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG4 - USB CIRCUITRY - 1
 
@@ -233,16 +233,77 @@ After sharing this setup with a few friends on Slack and getting laughed at over
 With that done, I'm quite satisfied with how it turned out, though I still think there's room to make the overall design more compact. So I will be spending some more time on that front as well, mostly just shifting components around and tightening up the spacing wherever possible. I won't be documenting every small shift here, but I'll include the final result in my closing devlog for this board.
 ![Image 2](j_imgs/D16-2.png)
 
-**Total time spent: 1 hour**
+**Total time spent: 2 hours**
 
 # 2026-07-27 to 2026-08-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG17 - ROUTING #5 OVERALL CONNECTIONS - 1
 
-i stopped doing my project consistently after my school started, so I did like very little stuff randomly if I found some time, so i dont have that stuff documented that well as compared to my other journals. So i will combining all of the small bits and will be posting 3-4 very long journals just explaining everything i did.
+I stopped working on this project consistently once school started, so I only managed to squeeze in small bits of progress whenever I found some spare time. Because of that, this stretch isn't documented nearly as well as my other journals. So instead of trying to create a set of day-by-day journals, I'll be combining all of these smaller bits and posting 4 long journals covering everything I worked on over this month-long tenure. This was also my first time building a devboard this complex, so things took a lot longer than they should have, but I learned quite a lot in the process.
 
+So, once the main power rail was done, which basically involved wiring the input into a small filtering network with back-EMF protection, this now reasonably clean 24V input was fed into the motors. The same input was also tapped off into a buck converter, producing a 5V/3A output, which then feeds into an LDO to finally produce a stable 3.3V/1A rail for the logic side.
+![Image 1](j_imgs/D17-1.png)
 
+With that settled, the main routing left was connecting the MCU to the rest of the board. To start off, I routed the connections to the nearby I2C and CAN connectors, which were pretty straightforward and didn't need much thought. Next up was the CSN lines going to the encoder SPI connectors, which had to pass through series resistors placed close to the MCU to keep the signal integrity reasonable.
+![Image 2](j_imgs/D17-2.png)
+Speaking of placement near the MCU, let me elaborate a bit on my ESD protection plan, since it's something I put a fair bit of thought into. Basically, I have two different placement strategies depending on the type of connection. Connectors that go off-board to the outside world, things like USB-C, CAN, RPi UART, and I2C, get their ESD protection placed right at the connector itself. That's because that's exactly where a static discharge or a cable-insertion transient would actually enter the board, and stopping it right there means it never gets the chance to couple onto anything else further downstream. On the other hand, buses that stay entirely internal to the board, like SPI1 going to the encoders, SPI2 going to the TMC5160 drivers, and the TMC2209 UART buses, don't really have an external entry point in the same sense, so their ESD protection sits near the MCU instead, guarding the chip's pins directly on a shared bus trunk that feeds several onboard devices at once.
+![Image 3](j_imgs/D17-3.png)
+**Total time spent: 7 hour**
 
-![Image 1](j_imgs/D16-1.png)
-With that done, I'm quite satisfied with how it turned out, though I still think there's room to make the overall design more compact. So I will be spending some more time on that front as well, mostly just shifting components around and tightening up the spacing wherever possible. I won't be documenting every small shift here, but I'll include the final result in my closing devlog for this board.
-![Image 2](j_imgs/D16-2.png)
+# 2026-07-27 to 2026-08-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG18 - ROUTING #6 OVERALL CONNECTIONS - 2
 
-**Total time spent: 1 hour**
+Now onto the actual routing grind. Once these peripherals were in place, the board very quickly started getting cluttered, a lot more than I expected. I kept running into situations where I simply couldn't route something because there was always some other trace or component blocking the path. So after a round of very tedious rearrangements, things slowly started coming together, though it definitely wasn't smooth.
+
+As I started routing the connections to the motor drivers, specifically the DIR and STEP pins, it became difficult getting traces across to the other side of the board. This is where I made a fairly big mistake early on: I ended up routing the logic traces before the signal traces, which meant that by the time I got to the signal traces, they had become a nightmare to manage since all the easy paths were already taken.
+![Image 1](j_imgs/D18-1.png)
+
+Another problem that came up was that my initial component placement had the encoder connectors sitting right between the MCU and the drivers, which wasn't ideal. So I had to remove the existing connections entirely and rework the placement. Since I wanted to keep the board as compact as possible, this meant making a few changes, the main one being folding the CAN bus layout so that the transceiver IC now sits vertically above the connectors instead of alongside them. The new layout ended up with USB on the left, along with the serial wire and RPi UART, encoders on top, and I2C on the side. This arrangement conveniently leaves the bottom layer almost completely free of traces, since the I2C connectors only need the top layer here, with the CAN bus sitting at the bottom of the board.
+![Image 2](j_imgs/D18-2.png)
+![Image 3](j_imgs/D18-3.png)
+From there, I started routing all the different logic connections to the drivers, leaving the signal connections for last since I knew those would need more careful handling. A lot of problems came up here, mainly around figuring out how to route everything to where it actually needed to go. A recurring issue was pins conflicting with each other, like two adjacent pins that both needed to travel toward each other, creating a barrier between them. These small problems ended up eating a surprising amount of time individually.
+But after wrestling with this for a long time, most of the main routing was finally done. I then moved on to the signal lines, which, after a lot of back and forth and liberal use of vias to hop between layers, were also eventually finished.
+![Image 4](j_imgs/D18-4.png)
+
+**Total time spent: 7 hour**
+
+# 2026-07-27 to 2026-08-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG19 - ROUTING #6 OVERALL CONNECTIONS - 3
+
+At this point, a new problem arrived: a handful of pins on the MCU had ended up boxed in, meaning I couldn't route them out on either layer since they were completely surrounded by other traces on all sides. To fix this, I had to REROUTE for the 3rd time.
+![Image 1](j_imgs/D19-1.png)
+Once this round of rerouting was done, I posted my design in a friend's Slack channel to get some feedback, and basically got met with horror. Well atleast I got some advice. The first was that I should be placing ground vias around any vias carrying high-speed signals, a method known as via stitching. The idea is that it gives the return current a short, direct path to follow alongside the signal instead of forcing it to detour around the board, which keeps inductance low and helps avoid EMI issues down the line. The second, related concept was via fencing, which is essentially the same idea scaled up: a full ring of ground vias placed around a wider area for broader shielding, rather than just single vias next to individual signals. So I went through and added around 2 ground vias per signal via, and things were looking good after that.
+![Image 2](j_imgs/D19-2.png)
+![Image 3](j_imgs/D19-3.png)
+I then moved on to creating the pours for my 3.3V layer, basically laying down a bunch of layer fills exactly where I wanted the pours to sit, and at this point I thought I was done. I created the ground fill as well, set up the board boundaries, and everything seemed finished and tidy.
+
+That is, until someone on Slack pointed out that my vias had "1-2" or "1-3" written on them instead of going all the way through. Basically, I had assumed early on that vias connecting to the ground plane or the 3.3V plane didn't need to go all the way through the board, thinking this would save some routing area on the bottom layer. So, without fully realizing it, I had ended up using microvias for essentially everything. Every single via on the board turned out to be a microvia.
+
+I tried using the "edit via properties" option to fix this in one go, but that didn't work the way I expected, and all of my vias remained stubbornly micro. Somehow I had ended up with microvias set to custom dimensions I had defined myself, so when I ran edit via properties, every single one of them got reset to the default netclass dimensions for microvias instead, which only made the mess worse. In the end, I had to delete each via individually and manually add normal through-hole vias in their place. While I was at it, I checked JLCPCB's manufacturing specs and found 0.4/0.3mm to be the smallest "free" via size they could reliably produce, so I standardized every via on the board to that size going forward.
+![Image 4](j_imgs/D19-4.png)
+![Image 5](j_imgs/D19-5.png)
+
+**Total time spent: 7 hour**
+
+# 2026-07-27 to 2026-08-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG20 - ROUTING #7 OVERALL CONNECTIONS - 4
+
+The via change, of course, gave rise to a fresh set of problems. The updated via sizes and clearances made my 3.3V pour discontinuous, since all vias were now punching all the way through the board instead of stopping partway. I had to go back and reconfigure the placement of both the vias and the pours to restore continuity. On top of that, a lot of these newly resized vias now sat directly over traces on the bottom layer, so a majority of those traces had to be REROUTED, for the 4th time. This time, I made sure to double-check clearances, via sizes, and track sizes across the entire board, and I di believe I was done.
+![Image 1](j_imgs/D20-1.png)
+![Image 2](j_imgs/D20-2.png)
+Then someone then brought up return paths, which tied directly back into the via stitching discussion from earlier. They pointed out that signals like UART and SPI shouldn't be routed directly over the power pours I had created on layer 3, since doing so disrupts the return current path. My routing had a good number of signal traces crossing right over that pour. So I had to reroute these signal traces yet again, this time by bringing them up to the top layer and shuffling other components and traces around to make room. By this point, a substantial amount of routing had already been completed, and to free up the necessary space, I ended up having to delete most of it, again.
+
+This time, though, it really was the final rerouting. After spending a few more days tidying up and polishing the board, I redrew the board boundary, merged all the separate fill zones belonging to the same nets, and also discovered that the terminals on my XT60 connector symbol were reversed, which I fixed. I added a few extra decoupling capacitors near the negative terminal, removed the ferrite bead I'd initially placed, and made a handful of other small cleanup changes, and with that, I was done. Period.
+![Image 3](j_imgs/D20-3.png)
+![Image 4](j_imgs/D20-4.png)
+From there, I moved on to adding all the missing 3D models in KiCad. I couldn't track down an existing 3D model for the inductor, so I ended up modeling one myself in Fusion 360. The motor drivers didn't have models available either, so I made those from scratch as well, complete with connector slots to match the real footprints. I also swapped out the JST connectors I had originally used for the motors in favor of JST-XH ones instead, for a more secure and standard connection.
+
+With all of that wrapped up, I added some silkscreen details: a short note explaining what the board is, my personal hallmark and logo, and a couple of other fun little touches. I then tidied up the schematic sheet, filled in a few remaining details, and with that, VoxBoard V1 was officially done.
+Here are the Results.
+
+![Image 5](j_imgs/D20-5.png)
+![Image 6](j_imgs/D20-6.png)
+![Image 7](j_imgs/D20-7.png)
+This was the final compressed layout of the power circuitry.
+![Image 8](j_imgs/D20-8.png)
+![Image 9](j_imgs/D20-9.png)
+![Image 10](j_imgs/D20-10.png)
+![Image 11](j_imgs/D20-11.png)
+![Image 12](j_imgs/D20-12.png)
+It's beautiful.
+**Total time spent: 7 hour**
