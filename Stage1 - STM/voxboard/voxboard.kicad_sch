@@ -15421,6 +15421,16 @@
 	)
 	(wire
 		(pts
+			(xy 157.48 41.91) (xy 158.75 41.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52e665c1-30a2-4a3f-9310-eb3947dae985")
+	)
+	(wire
+		(pts
 			(xy 358.14 205.74) (xy 372.11 205.74)
 		)
 		(stroke
@@ -25738,7 +25748,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D12.5mm_P5.00mm"
 			(at 56.1848 31.75 0)
 			(effects
 				(font
@@ -26148,7 +26158,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 191.4652 72.39 0)
 			(effects
 				(font
@@ -27978,7 +27988,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 70.8152 39.37 0)
 			(effects
 				(font
@@ -30514,7 +30524,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
 			(at 62.5348 31.75 0)
 			(effects
 				(font
@@ -30737,7 +30747,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 23.1648 223.52 0)
 			(effects
 				(font
@@ -32322,7 +32332,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SMC"
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
 			(at 220.98 33.02 0)
 			(effects
 				(font
@@ -37082,7 +37092,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 41.6052 52.07 0)
 			(effects
 				(font
@@ -43441,7 +43451,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 123.698 38.1 90)
 			(effects
 				(font
@@ -44996,7 +45006,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 158.75 41.91 90)
+		(at 157.48 41.91 90)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -45005,7 +45015,7 @@
 		(dnp no)
 		(uuid "df6aed1f-d2fa-4a11-b995-aa93da9eb34b")
 		(property "Reference" "TP1"
-			(at 157.48 43.942 90)
+			(at 156.21 43.942 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45014,7 +45024,7 @@
 			)
 		)
 		(property "Value" "TestPoint"
-			(at 153.67 43.1799 90)
+			(at 152.4 43.1799 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45024,7 +45034,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_2.0x2.0mm"
-			(at 158.75 46.99 0)
+			(at 157.48 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45033,7 +45043,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 158.75 46.99 0)
+			(at 157.48 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45042,7 +45052,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 158.75 41.91 0)
+			(at 157.48 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45889,7 +45899,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SMA"
+		(property "Footprint" "Diode_SMD:D_SMC"
 			(at 168.91 35.56 0)
 			(effects
 				(font

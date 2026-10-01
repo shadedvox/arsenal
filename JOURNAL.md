@@ -308,3 +308,14 @@ This was the final compressed layout of the power circuitry.
 It's beautiful.
 
 **Total time spent: 7 hours**
+
+# 2026-10-01: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG21 - BOM
+
+So I exported the BOM from KiCAD through the fabrication tool and then sat down to find all the jlc part numbers for these parts, while doing that i had to change some of the footprints since I don't know why exactly I chose those footprints when they did not have parts of that size or form. There were some major changes that involved me rearragning some parts on the power rail but it was not a really big deal and got resolved easily. 
+![Image 1](j_imgs/D21-1.png)
+![Image 2](j_imgs/D21-2.png)
+So small changes, then uploading the BOM to jlc and finilizing my parts cart was done. The BOM is present in [\Stage1 - STM](https://github.com/shadedvox/arsenal/tree/main/Stage1%20-%20STM). The parts total as of October 2026 comes out to be $63.61 for 2 PCBAs, this is only the parts total, the PCBA and PCB manufacturing charge needs to be calculated.
+![Image 3](j_imgs/D21-3.png)
+![Image 4](j_imgs/D21-4.png)
+
+**Total time spent: 2 hours**
