@@ -322,3 +322,22 @@ So, after these small changes, uploading the BOM to JLC and finalizing my parts 
 ![Image 4](j_imgs/D21-4.png)
 
 **Total time spent: 2 hours**
+
+# 2026-10-03: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG22 - GND POURS, VIA STITCHING
+
+This journal entry is mainly to commemorate my stupidity: I spent two hours placing via stitching patterns manually, completely unaware that plugins exist to do it automatically. That's all—I manually placed via stitches all over the board after creating GND pours on both signal layers.
+
+![Image 1](j_imgs/D22-1.png)
+![Image 2](j_imgs/D22-2.png)
+
+This is the final showcase of Voxboard V1.
+
+![Image 3](j_imgs/D22-3.png)
+![Image 4](j_imgs/D22-4.png)
+![Image 5](j_imgs/D22-5.png)
+![Image 6](j_imgs/D22-6.png)
+![Image 7](j_imgs/D22-7.png)
+![Image 8](j_imgs/D22-8.png)
+![Image 9](j_imgs/D22-9.png)
+
+**Total time spent: 2 hours**
