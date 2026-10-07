@@ -316,7 +316,7 @@ So I exported the BOM from KiCad through the fabrication tool and then sat down 
 ![Image 1](j_imgs/D21-1.png)
 ![Image 2](j_imgs/D21-2.png)
 
-So, after these small changes, uploading the BOM to JLC and finalizing my parts cart was done. The BOM is present in [\Stage1 - STM](https://github.com/shadedvox/arsenal/tree/main/Stage1%20-%20STM). The parts total, as of October 2026, comes out to $63.61 for 2 PCBAs. This is only the parts total; the PCBA and PCB manufacturing charges still need to be calculated.
+So, after these small changes, uploading the BOM to JLC and finalizing my parts cart was done. The BOM is present in [\Stage1 - STM](https://github.com/shadedvox/arsenal/tree/main/Stage1%20-%20STM). The parts total, as of October 2026, comes out to $263.61 for 2 PCBAs. This is only the parts total; the PCBA and PCB manufacturing charges still need to be calculated.
 
 ![Image 3](j_imgs/D21-3.png)
 ![Image 4](j_imgs/D21-4.png)
