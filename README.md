@@ -31,7 +31,7 @@ Voxboard is a custom 4-layer PCB motor controller built to drive all six joints 
 
 
 
-![Image 1 - schematic](./j_imgs/voxboard-01-schematic.png)
+![Image 1 - schematic](./j_imgs/D18-1.png)
 
 
 
@@ -41,7 +41,7 @@ Voxboard is a custom 4-layer PCB motor controller built to drive all six joints 
 
 
 
-![Image 3 - routing](./j_imgs/D22-4png)
+![Image 3 - routing](./j_imgs/D22-4.png)
 
 
 
@@ -67,11 +67,6 @@ Voxboard is a custom 4-layer PCB motor controller built to drive all six joints 
 
 
 ![Image 8 - pcb render](./j_imgs/D22-9.png)
-
-
-
-
-![Image 9 - pcb render](./j_imgs/D22-10.png)
 
 
 
