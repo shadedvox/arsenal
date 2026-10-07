@@ -113399,7 +113399,7 @@
 		(net_name "GND")
 		(layer "In1.Cu")
 		(uuid "f25d3257-bff2-4398-a8ac-e45284796106")
-		(hatch full 0.5)
+		(hatch none 0.5)
 		(priority 4)
 		(connect_pads
 			(clearance 0.5)
@@ -118451,7 +118451,7 @@
 		(net_name "VMCU")
 		(layer "In2.Cu")
 		(uuid "2fb54850-25ff-43b2-ab64-a8640ceac197")
-		(hatch full 0.5)
+		(hatch none 0.5)
 		(priority 2)
 		(connect_pads
 			(clearance 0.3)
