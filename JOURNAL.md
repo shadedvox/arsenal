@@ -177,7 +177,7 @@ An important note, my board has a 4 layer stackup of SIG - GND - POW (3.3V) - SI
 
 With the basic layout in place, the next step is routing the MCU and its direct connections first.
 
-**Total time spent: 3 hours**
+**Total time spent: 4 hours**
 
 # 2026-07-21: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG14 - ROUTING #2 SIMPLE LOGIC CONNECTIONS 
 
@@ -200,7 +200,7 @@ The next major piece was the CAN bus, which is mainly there to serve as a connec
 
 With the basic routing done, I'll move on to the power lines next.
 
-**Total time spent: 4 hours**
+**Total time spent: 5 hours**
 
 # 2026-07-23: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG15 - ROUTING #3 POWER CONNECTIONS - 1 
 
@@ -224,7 +224,7 @@ The bigger challenge after that was figuring out how to extend traces out to the
 
 With the power routing mostly done for now, I'll probably move on to the remaining connections next, but I might revisit this tomorrow.
 
-**Total time spent: 5 hours**
+**Total time spent: 6 hours**
 
 # 2026-07-24: Stage 1 — Custom STM32F446-Based Motor Controller (Dev Board) - DEVLOG16 - ROUTING #4 POWER CONNECTIONS - 2 
 
